@@ -1,10 +1,12 @@
-# Kay_JEY / 25-3-21 /
+# Kay_JEY / TEAM AKATSUKI
 from tkinter import *  
 from tkinter import messagebox
 from tkinter import filedialog
 from PIL import Image 
 import os 
 import pygame
+import json
+import requests
 
 #colors
 base_color = '#0079bf'
@@ -25,7 +27,7 @@ playimage='images/buttons/play.png'
 skipimage='images/buttons/estop.png'
 
 
-bg=PhotoImage(file=bgimage)
+#bg=PhotoImage(file=bgimage)
 pauseimageh=PhotoImage(pauseimage)
 pauseimageh=pauseimageh.zoom(50,50)
 playimageh=PhotoImage(playimage)
@@ -69,13 +71,29 @@ def skipbutton():
         messagebox.showerror('song not slected','PLEASE Select a song first')
         print("PLAY ERROR")
 
-'''
+def stopbutton():
+    try:
+        pygame.mixer.music.stop()
+    
+    except:
+        messagebox.showerror('song not selected', "Please select a song")
+
+
 def lyricsbutton():
     try:
+        artist = inputartist.get(1.0 , "end-1c")
+        song_title= inputsong.get(1.0,"end-1c")
+        url= 'https://api.lyrics.ovh/v1/' + artist + '/' + song_title
+
+        response = requests.get(url)
+        json_data = json.loads(response.content)
+        lyrics = json_data["lyrics"]
+
+        lyricsarea.insert(END,lyrics)
 
     except:
         messagebox.showerror('LYRICS NOT FOUND','PLEASE ENTER SONG NAME AND ARTIST')
-        print("PLAY ERROR")'''
+        print("PLAY ERROR")
 
 
 def playbutton(): # function to play a song
@@ -110,6 +128,8 @@ rightframe.pack(side= RIGHT)
 
 brFrame = Frame(rightframe, background=primary_color,  borderwidth= 1)
 brFrame.pack(side=BOTTOM)
+rightmostframe = Frame(brFrame, background=primary_color,  borderwidth= 1)
+rightmostframe.pack(side=BOTTOM)
 
 blFrame = Frame(leftframe, background=primary_color, borderwidth= 1)
 blFrame.pack(side=BOTTOM)
@@ -142,7 +162,7 @@ subMenu.add_command(label = "Reach Us")
 
 l1 = Label(tlFrame, text= "PLAY LIST", bg = primary_color,fg = "white" )
 l1.pack(pady=10)
-l2 = Label(root, text = "AKATSUKI PLAYER", bg = primary_color,fg = "white" )
+l2 = Label(root, text = "AKATSUKI PLAYER", bg = primary_color,fg = "white" , height = 10, width = 30)
 l2.pack()
 b1 = Button(brFrame,text = "PAUSE",command = pausebutton ,activeforeground = "purple",activebackground = "black",height=3, width=5)
 b1.pack(side = LEFT, padx=10)
@@ -150,7 +170,7 @@ b2 = Button(brFrame, text = "PLAY",command = playbutton , activeforeground = "pu
 b2.pack(side=LEFT,padx=10)
 b3 = Button(brFrame , text = "SKIP",command=skipbutton ,activeforeground = "purple",activebackground = "black" ,height=3, width=5)
 b3.pack(side=LEFT,padx=10)
-b4 = Button(brFrame, text = "LYRICS",activeforeground = "purple",activebackground = "black",height=3, width=5)
+b4 = Button(brFrame, text = "LYRICS",command = lyricsbutton , activeforeground = "purple",activebackground = "black",height=3, width=5)
 b4.pack(side=LEFT,padx=10)
 
 b5 = Button(blFrame, text="+SONGS", command = browsefiles)
@@ -158,10 +178,27 @@ b5.pack(side=LEFT, padx=10,pady=30)
 b6 = Button(blFrame, text="-SONGS")
 b6.pack(side=LEFT,padx=10,pady=30)
 
-lyricsarea = Text(trFrame,width=100,height=30)
-lyricsarea.insert(INSERT,"HERE LYRICS OF SONG")
-lyricsarea.insert(END," WILL BE DISPLAYED")
+lyricsarea = Text(trFrame,width=100,height=20)
+lyricsarea.insert(INSERT,"LYRICS \n")
+#lyricsarea.insert(END," WILL BE DISPLAYED")
 lyricsarea.pack(padx = 30, pady = 30)
+
+
+scroll_bar = Scrollbar(trFrame)
+scroll_bar.pack(side=RIGHT)
+
+l3 = Label(rightmostframe, text = "Artist Name", bg = primary_color,fg = "white" )
+inputartist = Text(rightmostframe,height = 2,width = 50)
+l3.pack(pady = 10)
+inputartist.pack(pady = 10)
+
+
+l4 = Label(rightmostframe, text = "Song name", bg = primary_color,fg = "white" )
+l4.pack(pady =10)
+inputsong = Text(rightmostframe,height = 2,width = 50)
+inputsong.pack(pady=10)
+
+
 
 playlistbox = Listbox(tlFrame,)
 playlistbox.pack()
